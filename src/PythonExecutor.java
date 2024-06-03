@@ -4,8 +4,10 @@ import java.io.BufferedReader;
 import java.io.InputStreamReader;
 import java.io.OutputStream;
 import java.net.HttpURLConnection;
+import java.net.URI;
 import java.net.URL;
 import java.net.URLEncoder;
+import java.nio.charset.StandardCharsets;
 import java.util.regex.Pattern;
 
 public class PythonExecutor extends SwingWorker<Void, String> {
@@ -15,7 +17,7 @@ public class PythonExecutor extends SwingWorker<Void, String> {
     private final JLabel statusLabel;
     private final JTextField messageField;
     private final JButton sendButton;
-    private StringBuilder messageHistory;
+    private final StringBuilder messageHistory;
 
     public PythonExecutor(String message, JTextPane chatArea, JLabel statusLabel, JTextField messageField,
                           JButton sendButton, StringBuilder messageHistory) {
@@ -28,34 +30,34 @@ public class PythonExecutor extends SwingWorker<Void, String> {
     }
 
     @Override
-    protected Void doInBackground() throws Exception {
+    protected Void doInBackground() {
         try {
             this.messageField.setEnabled(false);
             this.sendButton.setEnabled(false);
 
             String userName = System.getProperty("user.name");
-            publish("Enviando mensagem...");
+            publish("Escrevendo...");
 
             // URL do servidor Flask
-            URL url = new URL("http://10.1.43.63:5000/gemini");
+            URL url = new URI("http://10.1.43.63:5000/gemini").toURL();
             HttpURLConnection connection = (HttpURLConnection) url.openConnection();
             connection.setRequestMethod("POST");
             connection.setDoOutput(true);
 
             // Enviar a mensagem como parâmetro
-            String data = "message=" + URLEncoder.encode(message, "UTF-8") + "&username=" + URLEncoder.encode(userName, "UTF-8");
+            String data = "message=" + URLEncoder.encode(message, StandardCharsets.UTF_8) + "&username=" + URLEncoder.encode(userName, StandardCharsets.UTF_8);
             OutputStream output = connection.getOutputStream();
-            output.write(data.getBytes("UTF-8"));
+            output.write(data.getBytes(StandardCharsets.UTF_8));
             output.flush();
             output.close();
 
             // Ler a resposta do servidor
-            BufferedReader reader = new BufferedReader(new InputStreamReader(connection.getInputStream(), "UTF-8"));
+            BufferedReader reader = new BufferedReader(new InputStreamReader(connection.getInputStream(), StandardCharsets.UTF_8));
             StringBuilder response = new StringBuilder();
             String line;
 
             while ((line = reader.readLine()) != null) {
-                response.append(line + "<br>");
+                response.append(line).append("<br>");
             }
             reader.close();
             publish(response.toString()); // Publica a resposta para ser exibida
@@ -72,7 +74,7 @@ public class PythonExecutor extends SwingWorker<Void, String> {
     @Override
     protected void process(java.util.List<String> chunks) {
         for (String chunk : chunks) {
-            if (chunk.equals("Enviando mensagem...")) {
+            if (chunk.equals("Escrevendo...")) {
                 statusLabel.setText(chunk);
             } else {
                 // Adiciona texto ao JTextPane com estilo HTML
@@ -81,19 +83,17 @@ public class PythonExecutor extends SwingWorker<Void, String> {
                 Pattern pattern = Pattern.compile("\\*\\*(.*?)\\*\\*");
                 String formattedText = pattern.matcher(chunk).replaceAll("<strong>$1</strong>");
 
-                Pattern linkRegex = Pattern.compile("(https?:\\/\\/[^\\s]+)");
+                Pattern linkRegex = Pattern.compile("(https?://\\S+)");
                 formattedText = linkRegex.matcher(formattedText)
                         .replaceAll("<a href=\"$1\" style=\"color:#3B8CED;\" target=\"_blank\">$1</a>");
 
-                messageHistory.append(
-                        "<div style=\"font-size:18px; color:white; padding:5px; background-color: #176B87; border: 1px solid #000;\">"
-                                + "🤖<br>" + formattedText + "</div> <br>");
+                messageHistory.append("<div style=\"font-size:18px; color:white; padding:5px; background-color: #176B87; border: 1px solid #000;\">" + "🤖<br>").append(formattedText).append("</div> <br>");
 
                 try {
                     chatArea.setText(messageHistory.toString());
 
-                } catch (Error e) {
-                    e.printStackTrace();
+                } catch (Exception e) {
+                    System.out.println(e.getMessage());
                 }
             }
         }

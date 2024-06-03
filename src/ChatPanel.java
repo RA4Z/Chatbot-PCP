@@ -4,19 +4,17 @@ import javax.swing.border.EmptyBorder;
 import javax.swing.border.LineBorder;
 
 import java.awt.*;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
 import java.awt.event.KeyEvent;
 import java.awt.event.KeyListener;
 import java.util.regex.Pattern;
 
 public class ChatPanel extends JPanel {
 
-    private JTextPane chatArea; // Substituindo JTextArea por JTextPane
-    private JTextField messageField;
-    private JButton sendButton;
-    private JLabel statusLabel;
-    private StringBuilder messageHistory = new StringBuilder();
+    private final JTextPane chatArea; // Substituindo JTextArea por JTextPane
+    private final JTextField messageField;
+    private final JButton sendButton;
+    private final JLabel statusLabel;
+    private final StringBuilder messageHistory = new StringBuilder();
 
     public ChatPanel() {
         // Configuração do painel
@@ -79,12 +77,7 @@ public class ChatPanel extends JPanel {
             }
         });
 
-        sendButton.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                sendMessage();
-            }
-        });
+        sendButton.addActionListener(_ -> sendMessage());
     }
 
     private void sendMessage() {
@@ -96,19 +89,17 @@ public class ChatPanel extends JPanel {
             Pattern pattern = Pattern.compile("\\*\\*(.*?)\\*\\*");
             String formattedText = pattern.matcher(message).replaceAll("<strong>$1</strong>");
 
-            Pattern linkRegex = Pattern.compile("(https?:\\/\\/[^\\s]+)");
+            Pattern linkRegex = Pattern.compile("(https?://\\S+)");
             formattedText = linkRegex.matcher(formattedText)
                     .replaceAll("<a href=\"$1\" style=\"color:#3B8CED\" target=\"_blank\">$1</a>");
 
-            messageHistory.append(
-                    "<div style=\"font-size:18px; color:white; padding:5px; border: 1px solid #000; background-color: #053B50; text-align: right;\">"
-                            + formattedText + "</div> <br>");
+            messageHistory.append("<div style=\"font-size:18px; color:white; padding:5px; border: 1px solid #000; background-color: #053B50; text-align: right;\">").append(formattedText).append("</div> <br>");
 
             try {
                 chatArea.setText(messageHistory.toString());
 
-            } catch (Error e) {
-                e.printStackTrace();
+            } catch (Exception e) {
+                System.out.println(e.getMessage());
             }
 
             messageField.setText("");

@@ -2,7 +2,6 @@ import javax.imageio.ImageIO;
 import javax.swing.*;
 import java.awt.Image;
 import java.io.File;
-import java.io.IOException;
 
 public class ChatGUI extends JFrame {
 
@@ -17,8 +16,8 @@ public class ChatGUI extends JFrame {
         try {
             Image iconImage = ImageIO.read(new File("./images/chatbot_normal.png"));
             setIconImage(iconImage);
-        } catch (IOException e) {
-            e.printStackTrace();
+        } catch (Exception e) {
+            System.out.println(e.getMessage());
         }
 
         // Adiciona o ChatPanel à janela
@@ -29,6 +28,6 @@ public class ChatGUI extends JFrame {
     }
 
     public static void main(String[] args) {
-        SwingUtilities.invokeLater(() -> new ChatGUI());
+        SwingUtilities.invokeLater(ChatGUI::new);
     }
 }
