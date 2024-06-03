@@ -1,0 +1,8 @@
+<component name="ArtifactManager">
+  <artifact type="jar" name="Chatbot PCP:jar">
+    <output-path>$PROJECT_DIR$/out/artifacts/Chatbot_PCP_jar</output-path>
+    <root id="archive" name="Chatbot PCP.jar">
+      <element id="module-output" name="Chatbot PCP" />
+    </root>
+  </artifact>
+</component>
