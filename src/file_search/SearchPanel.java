@@ -182,27 +182,22 @@ public class SearchPanel extends JPanel {
         switch (option) {
             case "1":
                 desiredIndex = 0;
-                System.out.println("Primeira opção escolhida");
                 break;
 
             case "2":
                 desiredIndex = 1;
-                System.out.println("Segunda opção escolhida");
                 break;
 
             case "3":
                 desiredIndex = 2;
-                System.out.println("Terceira opção escolhida");
                 break;
 
             case "4":
                 desiredIndex = 3;
-                System.out.println("Quarta opção escolhida");
                 break;
 
             case "5":
                 desiredIndex = 4;
-                System.out.println("Quinta opção escolhida");
                 break;
 
             default:

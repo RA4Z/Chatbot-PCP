@@ -6,8 +6,9 @@ import java.awt.*;
 import java.io.File;
 
 public class ChatGUI extends JFrame {
-    // Tela inicial (Home)
-    private JPanel homePanel;
+
+    private final JPanel homePanel;
+    private final CardLayout cardLayout;
 
     // Tela de chat
     private ChatPanel chatPanel;
@@ -30,6 +31,12 @@ public class ChatGUI extends JFrame {
             System.out.println(e.getMessage());
         }
 
+        // Cria o homePanel com CardLayout
+        homePanel = new JPanel();
+        cardLayout = new CardLayout();
+        homePanel.setLayout(cardLayout);
+        homePanel.setBorder(BorderFactory.createEmptyBorder(20, 20, 20, 20));
+
         // Cria a tela inicial (Home)
         createHomePanel();
 
@@ -42,15 +49,15 @@ public class ChatGUI extends JFrame {
 
     // Cria a tela de Home
     private void createHomePanel() {
-        homePanel = new JPanel(new BorderLayout()); // Usa BorderLayout
-        homePanel.setBorder(BorderFactory.createEmptyBorder(20, 20, 20, 20));
-
+        // TitleLabel
         JLabel titleLabel = new JLabel("Boas vindas à Central de Sistemas PCP WEN!", SwingConstants.CENTER);
         titleLabel.setFont(new Font("Arial", Font.BOLD, 24));
 
-        JPanel buttonPanel = new JPanel(new FlowLayout(FlowLayout.CENTER, 10, 10)); // Panel para os botões
-        buttonPanel.setBorder(BorderFactory.createEmptyBorder(10, 0, 0, 0)); // Adiciona um espaçamento na parte superior
+        // ButtonPanel
+        JPanel buttonPanel = new JPanel(new FlowLayout(FlowLayout.CENTER, 10, 10));
+        buttonPanel.setBorder(BorderFactory.createEmptyBorder(10, 0, 0, 0));
 
+        // Botões
         JButton chatButton = new JButton("Chatbot PCP WEN");
         chatButton.setBackground(new Color(0x365D86));
         chatButton.setForeground(Color.WHITE);
@@ -69,20 +76,18 @@ public class ChatGUI extends JFrame {
         buttonPanel.add(chatButton);
         buttonPanel.add(searchButton);
 
-        // Adiciona os componentes ao homePanel
-        homePanel.add(titleLabel, BorderLayout.NORTH); // TitleLabel na parte superior
-        homePanel.add(buttonPanel, BorderLayout.CENTER); // ButtonPanel no centro
+        // Cria um JPanel para conter titleLabel e buttonPanel
+        JPanel contentPanel = new JPanel(new BorderLayout());
+        contentPanel.add(titleLabel, BorderLayout.NORTH);
+        contentPanel.add(buttonPanel, BorderLayout.CENTER);
+
+        // Adiciona o contentPanel ao homePanel
+        homePanel.add(contentPanel, "home"); // Utiliza o nome "home" para identificar o painel
 
         // Adiciona os listeners para os botões
-        chatButton.addActionListener(_ -> {
-            showChatPanel();
-            homePanel.setVisible(false);
-        });
+        chatButton.addActionListener(_ -> showChatPanel());
 
-        searchButton.addActionListener(_ -> {
-            showSearchPanel();
-            homePanel.setVisible(false);
-        });
+        searchButton.addActionListener(_ -> showSearchPanel());
     }
 
     // Mostra a tela de chat
@@ -92,13 +97,11 @@ public class ChatGUI extends JFrame {
             chatPanel = new ChatPanel(homePanel);
         }
 
-        // Adiciona a tela de chat à janela
-        add(chatPanel);
-        chatPanel.setVisible(true);
+        // Adiciona a tela de chat ao homePanel
+        homePanel.add(chatPanel, "chat"); // Utiliza o nome "chat" para identificar o painel
 
-        // Redesenha a janela para exibir a nova tela
-        revalidate();
-        repaint();
+        // Mostra a tela de chat
+        cardLayout.show(homePanel, "chat");
     }
 
     // Mostra a tela de pesquisa
@@ -108,13 +111,11 @@ public class ChatGUI extends JFrame {
             searchPanel = new SearchPanel(homePanel);
         }
 
-        // Adiciona a tela de pesquisa à janela
-        add(searchPanel);
-        searchPanel.setVisible(true);
+        // Adiciona a tela de pesquisa ao homePanel
+        homePanel.add(searchPanel, "search"); // Utiliza o nome "search" para identificar o painel
 
-        // Redesenha a janela para exibir a nova tela
-        revalidate();
-        repaint();
+        // Mostra a tela de pesquisa
+        cardLayout.show(homePanel, "search");
     }
 
     public static void main(String[] args) {
