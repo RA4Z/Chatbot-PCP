@@ -1,3 +1,5 @@
+package chat;
+
 import javax.swing.*;
 
 import java.io.BufferedReader;

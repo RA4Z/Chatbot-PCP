@@ -1,8 +1,9 @@
+package chat;
+
 import javax.swing.*;
 import javax.swing.border.CompoundBorder;
 import javax.swing.border.EmptyBorder;
 import javax.swing.border.LineBorder;
-
 import java.awt.*;
 import java.awt.event.KeyEvent;
 import java.awt.event.KeyListener;
@@ -18,33 +19,33 @@ import java.util.regex.Pattern;
 
 public class ChatPanel extends JPanel {
 
-    private final JTextPane chatArea; // Substituindo JTextArea por JTextPane
+    private final JTextPane chatArea;
     private final JTextField messageField;
     private final JButton sendButton;
-    private final JButton resetButton; // Botão Resetar
+    private final JButton resetButton;
     private final JLabel statusLabel;
     private final StringBuilder messageHistory = new StringBuilder();
 
-    public ChatPanel() {
+    public ChatPanel(JPanel previousPanel) {
+        // Referência ao painel anterior
+
         // Configuração do painel
         setLayout(new BorderLayout());
-        setBackground(new Color(0xE8E7E7)); // Cor do chat: #e8e7e7
+        setBackground(new Color(0xE8E7E7));
 
         // Criação dos componentes
         chatArea = new JTextPane();
         chatArea.setEditable(false);
-        chatArea.setBackground(new Color(0xE8E7E7)); // Cor de fundo do output: #176b87
+        chatArea.setBackground(new Color(0xE8E7E7));
         chatArea.setForeground(Color.WHITE);
 
         // Cria um padding preto de 10 pixels
         EmptyBorder paddingBorder = new EmptyBorder(15, 15, 15, 15);
-        LineBorder blackBorder = new LineBorder(new Color(0xe8e7e7)); // Cria a borda preta
-
-        // Cria uma borda composta com o padding e a borda preta
+        LineBorder blackBorder = new LineBorder(new Color(0xe8e7e7));
         chatArea.setBorder(new CompoundBorder(paddingBorder, blackBorder));
 
         messageField = new JTextField();
-        messageField.setBackground(Color.WHITE); // Cor de fundo do input: #053b50
+        messageField.setBackground(Color.WHITE);
         messageField.setForeground(Color.BLACK);
         messageField.setFont(new Font("Arial", Font.PLAIN, 30));
 
@@ -54,7 +55,7 @@ public class ChatPanel extends JPanel {
         sendButton.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
         sendButton.setFont(new Font("Arial", Font.PLAIN, 30));
 
-        resetButton = new JButton("Resetar"); // Criação do botão Resetar
+        resetButton = new JButton("Resetar");
         resetButton.setBackground(new Color(0x60100B));
         resetButton.setForeground(Color.WHITE);
         resetButton.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
@@ -69,15 +70,25 @@ public class ChatPanel extends JPanel {
         add(new JScrollPane(chatArea), BorderLayout.CENTER);
 
         JPanel bottomPanel = new JPanel(new BorderLayout());
-        bottomPanel.setBackground(new Color(0xE8E7E7)); // Cor do chat: #e8e7e7
+        bottomPanel.setBackground(new Color(0xE8E7E7));
         bottomPanel.add(statusLabel, BorderLayout.WEST);
         bottomPanel.add(messageField, BorderLayout.CENTER);
 
-        // Cria um painel para o botão "Enviar" e "Resetar"
+        // Cria um painel para o botão "Enviar", "Resetar" e "Voltar"
         JPanel buttonPanel = new JPanel(new FlowLayout(FlowLayout.RIGHT));
-        buttonPanel.setBackground(new Color(0xE8E7E7)); // Cor do chat: #e8e7e7
-        buttonPanel.add(resetButton); // Adiciona o botão "Resetar" ao painel
+        buttonPanel.setBackground(new Color(0xE8E7E7));
+        buttonPanel.add(resetButton);
         buttonPanel.add(sendButton);
+
+        // Cria o botão Voltar
+        JButton backButton = new JButton("Voltar");
+        backButton.setBackground(new Color(0x02A724));
+        backButton.setForeground(Color.WHITE);
+        backButton.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
+        backButton.setFont(new Font("Arial", Font.PLAIN, 30));
+
+        // Adiciona o botão Voltar ao painel
+        buttonPanel.add(backButton);
 
         bottomPanel.add(buttonPanel, BorderLayout.EAST);
         add(bottomPanel, BorderLayout.SOUTH);
@@ -101,8 +112,20 @@ public class ChatPanel extends JPanel {
         });
 
         sendButton.addActionListener(_ -> sendMessage());
-        // Ação do botão "Resetar"
         resetButton.addActionListener(_ -> resetChat());
+
+        // Ação do botão "Voltar"
+        backButton.addActionListener(_ -> {
+            // Esconde o ChatPanel
+            setVisible(false);
+
+            // Torna o painel anterior visível
+            previousPanel.setVisible(true);
+
+            // Redesenha a janela
+            revalidate();
+            repaint();
+        });
     }
 
     private void sendMessage() {
@@ -134,11 +157,11 @@ public class ChatPanel extends JPanel {
         }
     }
 
-    private void resetChat() { // Função para resetar o chat
+    private void resetChat() {
         try {
-            messageHistory.setLength(0); // Limpa o histórico de mensagens
-            chatArea.setText(""); // Limpa a área de chat
-            statusLabel.setText(""); // Limpa o status
+            messageHistory.setLength(0);
+            chatArea.setText("");
+            statusLabel.setText("");
             String userName = System.getProperty("user.name");
             URL url = new URI("http://10.1.43.63:5000/quit").toURL();
             HttpURLConnection connection = (HttpURLConnection) url.openConnection();
