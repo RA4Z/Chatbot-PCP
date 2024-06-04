@@ -2,6 +2,7 @@ import chat.ChatPanel;
 import file_search.SearchPanel;
 import javax.imageio.ImageIO;
 import javax.swing.*;
+import javax.swing.border.Border;
 import java.awt.*;
 import java.io.File;
 
@@ -42,6 +43,9 @@ public class ChatGUI extends JFrame {
 
         // Adiciona a tela inicial à janela
         add(homePanel);
+
+        // Cria o rodapé
+        createFooter();
 
         // Exibe a janela
         setVisible(true);
@@ -116,6 +120,37 @@ public class ChatGUI extends JFrame {
 
         // Mostra a tela de pesquisa
         cardLayout.show(homePanel, "search");
+    }
+
+    // Cria o rodapé com imagem e texto
+    private void createFooter() {
+        // Cria o JPanel para o rodapé
+        JPanel footerPanel = new JPanel(new BorderLayout());
+        footerPanel.setBorder(BorderFactory.createEmptyBorder(10, 20, 10, 20));
+
+        Border topBorder = BorderFactory.createMatteBorder(1, 0, 0, 0, Color.BLACK);
+        footerPanel.setBorder(BorderFactory.createCompoundBorder(topBorder, footerPanel.getBorder()));
+
+        // Cria o JLabel para o texto do rodapé
+        JLabel footerText = new JLabel("© 2024 PCP WEN - Desenvolvido e Prototipado por Robert Aron Zimmermann.");
+        footerText.setHorizontalAlignment(SwingConstants.CENTER);
+        footerText.setFont(new Font("Arial", Font.PLAIN, 12));
+
+        // Carrega a imagem do rodapé
+        try {
+            Image footerImage = ImageIO.read(new File("./images/logo.png"));
+            JLabel imageLabel = new JLabel(new ImageIcon(footerImage));
+            imageLabel.setHorizontalAlignment(SwingConstants.LEFT);
+
+            // Adiciona a imagem e o texto ao footerPanel
+            footerPanel.add(imageLabel, BorderLayout.WEST);
+            footerPanel.add(footerText, BorderLayout.CENTER);
+
+            // Adiciona o footerPanel à janela principal
+            add(footerPanel, BorderLayout.SOUTH);
+        } catch (Exception e) {
+            System.out.println("Erro ao carregar imagem do rodapé: " + e.getMessage());
+        }
     }
 
     public static void main(String[] args) {
