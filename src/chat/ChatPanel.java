@@ -66,6 +66,19 @@ public class ChatPanel extends JPanel {
         statusLabel.setFont(new Font("Arial", Font.ITALIC, 14));
         statusLabel.setForeground(Color.GRAY);
 
+        // Cria o botão Voltar
+        JButton backButton = new JButton("Voltar");
+        backButton.setBackground(new Color(0x02A724));
+        backButton.setForeground(Color.WHITE);
+        backButton.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
+        backButton.setFont(new Font("Arial", Font.PLAIN, 30));
+
+
+        JPanel backPanel = new JPanel(new BorderLayout());
+        backPanel.add(backButton);
+
+        add(backPanel, BorderLayout.NORTH);
+
         // Adiciona componentes ao painel
         add(new JScrollPane(chatArea), BorderLayout.CENTER);
 
@@ -79,16 +92,6 @@ public class ChatPanel extends JPanel {
         buttonPanel.setBackground(new Color(0xE8E7E7));
         buttonPanel.add(resetButton);
         buttonPanel.add(sendButton);
-
-        // Cria o botão Voltar
-        JButton backButton = new JButton("Voltar");
-        backButton.setBackground(new Color(0x02A724));
-        backButton.setForeground(Color.WHITE);
-        backButton.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
-        backButton.setFont(new Font("Arial", Font.PLAIN, 30));
-
-        // Adiciona o botão Voltar ao painel
-        buttonPanel.add(backButton);
 
         bottomPanel.add(buttonPanel, BorderLayout.EAST);
         add(bottomPanel, BorderLayout.SOUTH);

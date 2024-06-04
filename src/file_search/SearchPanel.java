@@ -53,12 +53,13 @@ public class SearchPanel extends JPanel {
         JPanel inputPanel = new JPanel(new BorderLayout());
         inputPanel.setBackground(new Color(0xE8E7E7));
         inputPanel.add(inputField, BorderLayout.CENTER);
-        inputPanel.add(searchButton, BorderLayout.EAST);
+        inputPanel.add(backButton);
 
         // Cria um painel para o botão "Voltar"
-        JPanel buttonPanel = new JPanel(new FlowLayout(FlowLayout.RIGHT));
+        JPanel buttonPanel = new JPanel(new BorderLayout());
         buttonPanel.setBackground(new Color(0xE8E7E7));
-        buttonPanel.add(backButton);
+        buttonPanel.add(inputField, BorderLayout.CENTER);
+        buttonPanel.add(searchButton, BorderLayout.EAST);
 
         // Adiciona os componentes ao painel principal
         add(inputPanel, BorderLayout.NORTH);
