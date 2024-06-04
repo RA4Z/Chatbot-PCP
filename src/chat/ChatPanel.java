@@ -26,7 +26,7 @@ public class ChatPanel extends JPanel {
     private final JLabel statusLabel;
     private final StringBuilder messageHistory = new StringBuilder();
 
-    public ChatPanel(JPanel previousPanel) {
+    public ChatPanel() {
         // Referência ao painel anterior
 
         // Configuração do painel
@@ -66,16 +66,7 @@ public class ChatPanel extends JPanel {
         statusLabel.setFont(new Font("Arial", Font.ITALIC, 14));
         statusLabel.setForeground(Color.GRAY);
 
-        // Cria o botão Voltar
-        JButton backButton = new JButton("Voltar");
-        backButton.setBackground(new Color(0x02A724));
-        backButton.setForeground(Color.WHITE);
-        backButton.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
-        backButton.setFont(new Font("Arial", Font.PLAIN, 30));
-
-
         JPanel backPanel = new JPanel(new BorderLayout());
-        backPanel.add(backButton);
 
         add(backPanel, BorderLayout.NORTH);
 
@@ -116,19 +107,6 @@ public class ChatPanel extends JPanel {
 
         sendButton.addActionListener(_ -> sendMessage());
         resetButton.addActionListener(_ -> resetChat());
-
-        // Ação do botão "Voltar"
-        backButton.addActionListener(_ -> {
-            // Esconde o ChatPanel
-            setVisible(false);
-
-            // Torna o painel anterior visível
-            previousPanel.setVisible(true);
-
-            // Redesenha a janela
-            revalidate();
-            repaint();
-        });
     }
 
     private void sendMessage() {

@@ -28,7 +28,7 @@ public class SearchPanel extends JPanel {
     private String lastInputText;
     List<String> folders = new ArrayList<>();
 
-    public SearchPanel(JPanel previousPanel) {
+    public SearchPanel() {
         // Adiciona a referência ao painel anterior
 
         // Configura o painel
@@ -57,13 +57,6 @@ public class SearchPanel extends JPanel {
         EmptyBorder paddingBorder = new EmptyBorder(15, 15, 15, 15);
         LineBorder blackBorder = new LineBorder(new Color(0xE8E7E7));
         resultPane.setBorder(new CompoundBorder(paddingBorder, blackBorder));
-
-        // Botão para voltar
-        JButton backButton = new JButton("Voltar"); // Cria o botão Voltar
-        backButton.setBackground(new Color(0x02A724));
-        backButton.setForeground(Color.WHITE);
-        backButton.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
-        backButton.setFont(new Font("Arial", Font.PLAIN, 30));
 
         optionsPanel = new JPanel(new FlowLayout());
         optionsPanel.setBackground(new Color(0xE8E7E7));
@@ -97,7 +90,6 @@ public class SearchPanel extends JPanel {
         JPanel inputPanel = new JPanel(new BorderLayout());
         inputPanel.setBackground(new Color(0xE8E7E7));
         inputPanel.add(inputField, BorderLayout.CENTER);
-        inputPanel.add(backButton);
 
         JPanel bottomPanel = new JPanel(new BorderLayout());
         // Cria um painel para o botão "Voltar"
@@ -134,14 +126,6 @@ public class SearchPanel extends JPanel {
                     });
                 }).start();
             }
-        });
-
-        // Adiciona o listener ao botão Voltar
-        backButton.addActionListener(_ -> {
-            setVisible(false);
-            previousPanel.setVisible(true);
-            revalidate();
-            repaint();
         });
 
         // Adiciona o listener para a tecla Enter no inputField

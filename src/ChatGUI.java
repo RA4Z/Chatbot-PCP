@@ -1,5 +1,6 @@
 import chat.ChatPanel;
 import file_search.SearchPanel;
+import automatismos.AutomatismosPanel;
 import javax.imageio.ImageIO;
 import javax.swing.*;
 import java.awt.*;
@@ -10,6 +11,7 @@ public class ChatGUI extends JFrame {
     private final JPanel homePanel;
     private final CardLayout cardLayout;
 
+    private AutomatismosPanel automatismosPanel;
     private ChatPanel chatPanel;
     private SearchPanel searchPanel;
 
@@ -29,11 +31,28 @@ public class ChatGUI extends JFrame {
         cardLayout = (CardLayout) homePanel.getLayout();
         homePanel.setBorder(BorderFactory.createEmptyBorder(20, 20, 20, 20));
 
+        createHeader(); // Cria o cabeçalho
         createHomePanel();
-        add(homePanel);
+        add(homePanel, BorderLayout.CENTER); // Adiciona o homePanel ao centro
         createFooter();
 
         setVisible(true);
+    }
+
+    private void createHeader() {
+        JPanel headerPanel = new JPanel(new BorderLayout());
+        headerPanel.setBorder(BorderFactory.createEmptyBorder(10, 20, 10, 20));
+        headerPanel.setBackground(new Color(0x365D86));
+
+        JButton backButton = new JButton("HOME");
+        backButton.setBackground(Color.WHITE);
+        backButton.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
+        backButton.setForeground(new Color(0x365D86));
+        backButton.setFont(new Font("Arial", Font.BOLD, 16));
+        backButton.addActionListener(_ -> showHomePanel());
+
+        headerPanel.add(backButton, BorderLayout.WEST);
+        add(headerPanel, BorderLayout.NORTH);
     }
 
     private void createHomePanel() {
@@ -45,9 +64,11 @@ public class ChatGUI extends JFrame {
 
         JButton chatButton = createButton("Chatbot PCP WEN", new Color(0x365D86), this::showChatPanel);
         JButton searchButton = createButton("Procurar Arquivo JGS", new Color(0xD19300), this::showSearchPanel);
+        JButton automatismosButton = createButton("Automatismos", new Color(0x00A65A), this::showAutomatismosPanel);
 
         buttonPanel.add(chatButton);
         buttonPanel.add(searchButton);
+        buttonPanel.add(automatismosButton);
 
         JPanel contentPanel = new JPanel(new BorderLayout());
         contentPanel.add(titleLabel, BorderLayout.NORTH);
@@ -69,7 +90,7 @@ public class ChatGUI extends JFrame {
 
     private void showChatPanel() {
         if (chatPanel == null) {
-            chatPanel = new ChatPanel(homePanel);
+            chatPanel = new ChatPanel();
         }
         homePanel.add(chatPanel, "chat");
         cardLayout.show(homePanel, "chat");
@@ -77,10 +98,22 @@ public class ChatGUI extends JFrame {
 
     private void showSearchPanel() {
         if (searchPanel == null) {
-            searchPanel = new SearchPanel(homePanel);
+            searchPanel = new SearchPanel();
         }
         homePanel.add(searchPanel, "search");
         cardLayout.show(homePanel, "search");
+    }
+
+    private void showAutomatismosPanel() {
+        if (automatismosPanel == null) {
+            automatismosPanel = new AutomatismosPanel();
+        }
+        homePanel.add(automatismosPanel, "automatismos");
+        cardLayout.show(homePanel, "automatismos");
+    }
+
+    private void showHomePanel() {
+        cardLayout.show(homePanel, "home");
     }
 
     private void createFooter() {
