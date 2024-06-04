@@ -15,12 +15,18 @@ import java.net.URI;
 import java.net.URL;
 import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.regex.Pattern;
+import java.io.IOException;
 
 public class SearchPanel extends JPanel {
 
     private final JTextField inputField;
     private final JTextPane resultPane;
+    private final JPanel optionsPanel;
+    private String lastInputText;
+    List<String> folders = new ArrayList<>();
 
     public SearchPanel(JPanel previousPanel) {
         // Adiciona a referência ao painel anterior
@@ -59,12 +65,41 @@ public class SearchPanel extends JPanel {
         backButton.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
         backButton.setFont(new Font("Arial", Font.PLAIN, 30));
 
+        optionsPanel = new JPanel(new FlowLayout());
+        optionsPanel.setBackground(new Color(0xE8E7E7));
+
+        JLabel titleLabel = new JLabel("Opção Correta:", SwingConstants.CENTER);
+        titleLabel.setFont(new Font("Arial", Font.PLAIN, 20));
+        optionsPanel.add(titleLabel);
+
+        for(int i = 1; i<=5; i++) {
+            final String textTemp= String.valueOf(i);
+            JButton optionButton = new JButton(textTemp); // Cria o botão de opção
+            optionButton.setBackground(new Color(0x1960d1));
+            optionButton.setForeground(Color.WHITE);
+            optionButton.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
+            optionButton.setFont(new Font("Arial", Font.PLAIN, 30));
+
+            optionButton.addActionListener(_ -> sendOpinion(textTemp));
+            optionsPanel.add(optionButton);
+        }
+
+        JButton errorButton = new JButton("Nenhuma"); // Cria o botão de opção
+        errorButton.setBackground(new Color(0x990000));
+        errorButton.setForeground(Color.WHITE);
+        errorButton.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
+        errorButton.setFont(new Font("Arial", Font.PLAIN, 30));
+        errorButton.addActionListener(_ -> sendOpinion("Nenhuma"));
+        optionsPanel.add(errorButton);
+        optionsPanel.setVisible(false);
+
         // Cria um painel para o input e o botão
         JPanel inputPanel = new JPanel(new BorderLayout());
         inputPanel.setBackground(new Color(0xE8E7E7));
         inputPanel.add(inputField, BorderLayout.CENTER);
         inputPanel.add(backButton);
 
+        JPanel bottomPanel = new JPanel(new BorderLayout());
         // Cria um painel para o botão "Voltar"
         JPanel buttonPanel = new JPanel(new BorderLayout());
         buttonPanel.setBackground(new Color(0xE8E7E7));
@@ -74,7 +109,10 @@ public class SearchPanel extends JPanel {
         // Adiciona os componentes ao painel principal
         add(inputPanel, BorderLayout.NORTH);
         add(new JScrollPane(resultPane), BorderLayout.CENTER);
-        add(buttonPanel, BorderLayout.SOUTH);
+
+        add(bottomPanel, BorderLayout.SOUTH);
+        bottomPanel.add(optionsPanel, BorderLayout.NORTH);
+        bottomPanel.add(buttonPanel, BorderLayout.SOUTH);
 
         // Adiciona o listener ao botão de pesquisa
         searchButton.addActionListener(_ -> {
@@ -121,6 +159,7 @@ public class SearchPanel extends JPanel {
                         searchButton.setEnabled(false);
                         new Thread(() -> {
                             String searchResults = performSearch(searchTerm);
+                            System.out.println(folders);
                             SwingUtilities.invokeLater(() -> {
                                 resultPane.setText(searchResults);
                                 inputField.setText("");
@@ -138,8 +177,61 @@ public class SearchPanel extends JPanel {
         });
     }
 
+    private void sendOpinion(String option) {
+        int desiredIndex = -1;
+        switch (option) {
+            case "1":
+                desiredIndex = 0;
+                System.out.println("Primeira opção escolhida");
+                break;
+
+            case "2":
+                desiredIndex = 1;
+                System.out.println("Segunda opção escolhida");
+                break;
+
+            case "3":
+                desiredIndex = 2;
+                System.out.println("Terceira opção escolhida");
+                break;
+
+            case "4":
+                desiredIndex = 3;
+                System.out.println("Quarta opção escolhida");
+                break;
+
+            case "5":
+                desiredIndex = 4;
+                System.out.println("Quinta opção escolhida");
+                break;
+
+            default:
+                System.out.println("Desculpe por não conseguir ajudar!");
+                break;
+        }
+
+        if(desiredIndex > -1) {
+            try {
+                String exePath = "./scripts/export_json_history.exe";
+                ProcessBuilder pb = new ProcessBuilder(exePath, lastInputText, folders.get(desiredIndex));
+                // Inicie o processo
+                Process process = pb.start();
+                // Aguarde a conclusão do processo
+                int exitCode = process.waitFor();
+                // Imprima o código de saída do processo
+                System.out.println("Código de saída: " + exitCode);
+
+            } catch (IOException | InterruptedException e) {
+                System.err.println("Erro ao executar o arquivo EXE: " + e.getMessage());
+            }
+        }
+        lastInputText = "";
+        optionsPanel.setVisible(false);
+    }
+
     private String performSearch(String message) {
         try {
+            lastInputText = message;
             URL url = new URI("http://10.1.43.63:5000/search").toURL();
             HttpURLConnection connection = (HttpURLConnection) url.openConnection();
             connection.setRequestMethod("POST");
@@ -157,7 +249,11 @@ public class SearchPanel extends JPanel {
             StringBuilder response = new StringBuilder();
             String line;
 
+            folders = new ArrayList<>();
             while ((line = reader.readLine()) != null) {
+                if (line.contains("BR_SC_JGS_WM_LOGISTICA") && !line.contains("Observação")) {
+                    folders.add(line.replace("**", ""));
+                }
                 response.append(line).append("<br>");
             }
             reader.close();
@@ -167,6 +263,8 @@ public class SearchPanel extends JPanel {
             Pattern linkRegex = Pattern.compile("(https?://\\S+)");
             formattedText = linkRegex.matcher(formattedText)
                     .replaceAll("<a href=\"$1\" style=\"color:#3B8CED\" target=\"_blank\">$1</a>");
+
+            optionsPanel.setVisible(true);
 
             return "<div style=\"font-size:18px; color:white; padding:5px; border: 1px solid #000; background-color: #176B87;\">" +
                     formattedText +
