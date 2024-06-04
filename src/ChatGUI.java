@@ -42,28 +42,36 @@ public class ChatGUI extends JFrame {
 
     // Cria a tela de Home
     private void createHomePanel() {
-        homePanel = new JPanel(new GridLayout(3, 1, 10, 10));
+        homePanel = new JPanel(new BorderLayout()); // Usa BorderLayout
         homePanel.setBorder(BorderFactory.createEmptyBorder(20, 20, 20, 20));
 
         JLabel titleLabel = new JLabel("Boas vindas à Central de Sistemas PCP WEN!", SwingConstants.CENTER);
         titleLabel.setFont(new Font("Arial", Font.BOLD, 24));
+
+        JPanel buttonPanel = new JPanel(new FlowLayout(FlowLayout.CENTER, 10, 10)); // Panel para os botões
+        buttonPanel.setBorder(BorderFactory.createEmptyBorder(10, 0, 0, 0)); // Adiciona um espaçamento na parte superior
 
         JButton chatButton = new JButton("Chatbot PCP WEN");
         chatButton.setBackground(new Color(0x365D86));
         chatButton.setForeground(Color.WHITE);
         chatButton.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
         chatButton.setFont(new Font("Arial", Font.PLAIN, 30));
+        chatButton.setPreferredSize(new Dimension(400, 50));
 
         JButton searchButton = new JButton("Procurar Arquivo JGS");
         searchButton.setBackground(new Color(0xD19300));
         searchButton.setForeground(Color.WHITE);
         searchButton.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
         searchButton.setFont(new Font("Arial", Font.PLAIN, 30));
+        searchButton.setPreferredSize(new Dimension(400, 50));
 
-        // Adiciona os componentes ao painel
-        homePanel.add(titleLabel);
-        homePanel.add(chatButton);
-        homePanel.add(searchButton);
+        // Adiciona os botões ao buttonPanel
+        buttonPanel.add(chatButton);
+        buttonPanel.add(searchButton);
+
+        // Adiciona os componentes ao homePanel
+        homePanel.add(titleLabel, BorderLayout.NORTH); // TitleLabel na parte superior
+        homePanel.add(buttonPanel, BorderLayout.CENTER); // ButtonPanel no centro
 
         // Adiciona os listeners para os botões
         chatButton.addActionListener(_ -> {
