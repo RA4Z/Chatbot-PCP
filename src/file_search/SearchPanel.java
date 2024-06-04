@@ -159,7 +159,6 @@ public class SearchPanel extends JPanel {
                         searchButton.setEnabled(false);
                         new Thread(() -> {
                             String searchResults = performSearch(searchTerm);
-                            System.out.println(folders);
                             SwingUtilities.invokeLater(() -> {
                                 resultPane.setText(searchResults);
                                 inputField.setText("");
@@ -201,7 +200,6 @@ public class SearchPanel extends JPanel {
                 break;
 
             default:
-                System.out.println("Desculpe por não conseguir ajudar!");
                 break;
         }
 
@@ -212,9 +210,7 @@ public class SearchPanel extends JPanel {
                 // Inicie o processo
                 Process process = pb.start();
                 // Aguarde a conclusão do processo
-                int exitCode = process.waitFor();
-                // Imprima o código de saída do processo
-                System.out.println("Código de saída: " + exitCode);
+                process.waitFor();
 
             } catch (IOException | InterruptedException e) {
                 System.err.println("Erro ao executar o arquivo EXE: " + e.getMessage());
