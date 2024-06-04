@@ -6,6 +6,14 @@ import javax.swing.border.LineBorder;
 import java.awt.*;
 import java.awt.event.KeyEvent;
 import java.awt.event.KeyListener;
+import java.io.BufferedReader;
+import java.io.InputStreamReader;
+import java.io.OutputStream;
+import java.net.HttpURLConnection;
+import java.net.URI;
+import java.net.URL;
+import java.net.URLEncoder;
+import java.nio.charset.StandardCharsets;
 import java.util.regex.Pattern;
 
 public class ChatPanel extends JPanel {
@@ -13,6 +21,7 @@ public class ChatPanel extends JPanel {
     private final JTextPane chatArea; // Substituindo JTextArea por JTextPane
     private final JTextField messageField;
     private final JButton sendButton;
+    private final JButton resetButton; // Botão Resetar
     private final JLabel statusLabel;
     private final StringBuilder messageHistory = new StringBuilder();
 
@@ -24,7 +33,7 @@ public class ChatPanel extends JPanel {
         // Criação dos componentes
         chatArea = new JTextPane();
         chatArea.setEditable(false);
-        chatArea.setBackground(new Color(0xe8e7e7)); // Cor de fundo do output: #176b87
+        chatArea.setBackground(new Color(0xE8E7E7)); // Cor de fundo do output: #176b87
         chatArea.setForeground(Color.WHITE);
 
         // Cria um padding preto de 10 pixels
@@ -42,7 +51,14 @@ public class ChatPanel extends JPanel {
         sendButton = new JButton("Enviar");
         sendButton.setBackground(new Color(0x0C2D48));
         sendButton.setForeground(Color.WHITE);
+        sendButton.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
         sendButton.setFont(new Font("Arial", Font.PLAIN, 30));
+
+        resetButton = new JButton("Resetar"); // Criação do botão Resetar
+        resetButton.setBackground(new Color(0x60100B));
+        resetButton.setForeground(Color.WHITE);
+        resetButton.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
+        resetButton.setFont(new Font("Arial", Font.PLAIN, 30));
 
         statusLabel = new JLabel("");
         statusLabel.setHorizontalAlignment(SwingConstants.LEFT);
@@ -56,7 +72,14 @@ public class ChatPanel extends JPanel {
         bottomPanel.setBackground(new Color(0xE8E7E7)); // Cor do chat: #e8e7e7
         bottomPanel.add(statusLabel, BorderLayout.WEST);
         bottomPanel.add(messageField, BorderLayout.CENTER);
-        bottomPanel.add(sendButton, BorderLayout.EAST);
+
+        // Cria um painel para o botão "Enviar" e "Resetar"
+        JPanel buttonPanel = new JPanel(new FlowLayout(FlowLayout.RIGHT));
+        buttonPanel.setBackground(new Color(0xE8E7E7)); // Cor do chat: #e8e7e7
+        buttonPanel.add(resetButton); // Adiciona o botão "Resetar" ao painel
+        buttonPanel.add(sendButton);
+
+        bottomPanel.add(buttonPanel, BorderLayout.EAST);
         add(bottomPanel, BorderLayout.SOUTH);
 
         // Ações dos botões e campos de texto
@@ -78,6 +101,8 @@ public class ChatPanel extends JPanel {
         });
 
         sendButton.addActionListener(_ -> sendMessage());
+        // Ação do botão "Resetar"
+        resetButton.addActionListener(_ -> resetChat());
     }
 
     private void sendMessage() {
@@ -105,7 +130,30 @@ public class ChatPanel extends JPanel {
             messageField.setText("");
 
             // Executa o script Python em uma thread separada
-            new PythonExecutor(message, chatArea, statusLabel, messageField, sendButton, messageHistory).execute();
+            new PythonExecutor(message, chatArea, statusLabel, messageField, sendButton, messageHistory, resetButton).execute();
+        }
+    }
+
+    private void resetChat() { // Função para resetar o chat
+        try {
+            messageHistory.setLength(0); // Limpa o histórico de mensagens
+            chatArea.setText(""); // Limpa a área de chat
+            statusLabel.setText(""); // Limpa o status
+            String userName = System.getProperty("user.name");
+            URL url = new URI("http://10.1.43.63:5000/quit").toURL();
+            HttpURLConnection connection = (HttpURLConnection) url.openConnection();
+            connection.setRequestMethod("POST");
+            connection.setDoOutput(true);
+
+            String data = "username=" + URLEncoder.encode(userName, StandardCharsets.UTF_8);
+            OutputStream output = connection.getOutputStream();
+            output.write(data.getBytes(StandardCharsets.UTF_8));
+            output.flush();
+            output.close();
+            new BufferedReader(new InputStreamReader(connection.getInputStream(), StandardCharsets.UTF_8));
+
+        } catch (Exception ex) {
+            throw new RuntimeException("Erro ao comunicar com o servidor Flask: " + ex.getMessage());
         }
     }
 }

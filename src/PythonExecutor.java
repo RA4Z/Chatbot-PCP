@@ -17,16 +17,18 @@ public class PythonExecutor extends SwingWorker<Void, String> {
     private final JLabel statusLabel;
     private final JTextField messageField;
     private final JButton sendButton;
+    private final JButton resetButton;
     private final StringBuilder messageHistory;
 
     public PythonExecutor(String message, JTextPane chatArea, JLabel statusLabel, JTextField messageField,
-                          JButton sendButton, StringBuilder messageHistory) {
+                          JButton sendButton, StringBuilder messageHistory, JButton resetButton) {
         this.message = message;
         this.chatArea = chatArea;
         this.statusLabel = statusLabel;
         this.messageField = messageField;
         this.sendButton = sendButton;
         this.messageHistory = messageHistory;
+        this.resetButton = resetButton;
     }
 
     @Override
@@ -34,11 +36,13 @@ public class PythonExecutor extends SwingWorker<Void, String> {
         try {
             this.messageField.setEnabled(false);
             this.sendButton.setEnabled(false);
+            this.resetButton.setEnabled(false);
 
             String userName = System.getProperty("user.name");
             publish("Escrevendo...");
 
             // URL do servidor Flask
+            //URL url = new URI("http://10.1.43.24:5000/gemini").toURL();
             URL url = new URI("http://10.1.43.63:5000/gemini").toURL();
             HttpURLConnection connection = (HttpURLConnection) url.openConnection();
             connection.setRequestMethod("POST");
@@ -68,6 +72,7 @@ public class PythonExecutor extends SwingWorker<Void, String> {
 
         this.messageField.setEnabled(true);
         this.sendButton.setEnabled(true);
+        this.resetButton.setEnabled(true);
         return null;
     }
 
