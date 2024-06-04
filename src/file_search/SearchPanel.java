@@ -7,6 +7,15 @@ import javax.swing.border.EmptyBorder;
 import javax.swing.border.LineBorder;
 import java.awt.event.KeyEvent;
 import java.awt.event.KeyListener;
+import java.io.BufferedReader;
+import java.io.InputStreamReader;
+import java.io.OutputStream;
+import java.net.HttpURLConnection;
+import java.net.URI;
+import java.net.URL;
+import java.net.URLEncoder;
+import java.nio.charset.StandardCharsets;
+import java.util.regex.Pattern;
 
 public class SearchPanel extends JPanel {
 
@@ -26,7 +35,7 @@ public class SearchPanel extends JPanel {
         inputField.setForeground(Color.BLACK);
         inputField.setFont(new Font("Arial", Font.PLAIN, 30));
 
-        JButton searchButton = new JButton("Pesquisar");
+        JButton searchButton = new JButton("Procurar Arquivo");
         searchButton.setBackground(new Color(0x0C2D48));
         searchButton.setForeground(Color.WHITE);
         searchButton.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
@@ -36,6 +45,7 @@ public class SearchPanel extends JPanel {
         resultPane.setEditable(false);
         resultPane.setBackground(new Color(0xE8E7E7));
         resultPane.setForeground(Color.WHITE);
+        resultPane.setContentType("text/html");
 
         // Cria um padding preto de 10 pixels
         EmptyBorder paddingBorder = new EmptyBorder(15, 15, 15, 15);
@@ -69,9 +79,23 @@ public class SearchPanel extends JPanel {
         // Adiciona o listener ao botão de pesquisa
         searchButton.addActionListener(_ -> {
             String searchTerm = inputField.getText();
-            String searchResults = performSearch(searchTerm);
-            resultPane.setText(searchResults);
-            inputField.setText(""); // Limpa o inputField
+            if (!searchTerm.isEmpty()) {
+                // Desabilita o inputField para evitar múltiplas pesquisas
+                inputField.setEnabled(false);
+                searchButton.setEnabled(false);
+                // Cria uma nova thread para executar a pesquisa
+                new Thread(() -> {
+                    String searchResults = performSearch(searchTerm);
+                    // Atualiza o resultPane na thread principal
+                    SwingUtilities.invokeLater(() -> {
+                        resultPane.setText(searchResults);
+                        inputField.setText(""); // Limpa o inputField
+                        // Habilita o inputField após a pesquisa
+                        inputField.setEnabled(true);
+                        searchButton.setEnabled(true);
+                    });
+                }).start();
+            }
         });
 
         // Adiciona o listener ao botão Voltar
@@ -92,9 +116,19 @@ public class SearchPanel extends JPanel {
             public void keyPressed(KeyEvent e) {
                 if (e.getKeyCode() == KeyEvent.VK_ENTER) {
                     String searchTerm = inputField.getText();
-                    String searchResults = performSearch(searchTerm);
-                    resultPane.setText(searchResults);
-                    inputField.setText(""); // Limpa o inputField
+                    if (!searchTerm.isEmpty()) {
+                        inputField.setEnabled(false);
+                        searchButton.setEnabled(false);
+                        new Thread(() -> {
+                            String searchResults = performSearch(searchTerm);
+                            SwingUtilities.invokeLater(() -> {
+                                resultPane.setText(searchResults);
+                                inputField.setText("");
+                                inputField.setEnabled(true);
+                                searchButton.setEnabled(true);
+                            });
+                        }).start();
+                    }
                 }
             }
 
@@ -104,10 +138,42 @@ public class SearchPanel extends JPanel {
         });
     }
 
-    private String performSearch(String searchTerm) {
-        // Código para realizar a pesquisa usando o termo "searchTerm"
-        String searchResults = "Resultados da pesquisa para '" + searchTerm + "'";
-        System.out.println(searchResults);
-        return searchResults;
+    private String performSearch(String message) {
+        try {
+            URL url = new URI("http://10.1.43.63:5000/search").toURL();
+            HttpURLConnection connection = (HttpURLConnection) url.openConnection();
+            connection.setRequestMethod("POST");
+            connection.setDoOutput(true);
+
+            // Enviar a mensagem como parâmetro
+            String data = "message=" + URLEncoder.encode(message, StandardCharsets.UTF_8);
+            OutputStream output = connection.getOutputStream();
+            output.write(data.getBytes(StandardCharsets.UTF_8));
+            output.flush();
+            output.close();
+
+            // Ler a resposta do servidor
+            BufferedReader reader = new BufferedReader(new InputStreamReader(connection.getInputStream(), StandardCharsets.UTF_8));
+            StringBuilder response = new StringBuilder();
+            String line;
+
+            while ((line = reader.readLine()) != null) {
+                response.append(line).append("<br>");
+            }
+            reader.close();
+            String searchResults = response.toString();
+            Pattern pattern = Pattern.compile("\\*\\*(.*?)\\*\\*");
+            String formattedText = pattern.matcher(searchResults).replaceAll("<strong>$1</strong>");
+            Pattern linkRegex = Pattern.compile("(https?://\\S+)");
+            formattedText = linkRegex.matcher(formattedText)
+                    .replaceAll("<a href=\"$1\" style=\"color:#3B8CED\" target=\"_blank\">$1</a>");
+
+            return "<div style=\"font-size:18px; color:white; padding:5px; border: 1px solid #000; background-color: #176B87;\">" +
+                    formattedText +
+                    "</div> <br>";
+
+        } catch (Exception ex) {
+            throw new RuntimeException("Erro ao comunicar com o servidor Flask: " + ex.getMessage());
+        }
     }
 }

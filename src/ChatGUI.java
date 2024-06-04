@@ -45,16 +45,16 @@ public class ChatGUI extends JFrame {
         homePanel = new JPanel(new GridLayout(3, 1, 10, 10));
         homePanel.setBorder(BorderFactory.createEmptyBorder(20, 20, 20, 20));
 
-        JLabel titleLabel = new JLabel("Bem-vindo ao ChatBot PCP", SwingConstants.CENTER);
+        JLabel titleLabel = new JLabel("Boas vindas à Central de Sistemas PCP WEN!", SwingConstants.CENTER);
         titleLabel.setFont(new Font("Arial", Font.BOLD, 24));
 
-        JButton chatButton = new JButton("Chat");
+        JButton chatButton = new JButton("Chatbot PCP WEN");
         chatButton.setBackground(new Color(0x365D86));
         chatButton.setForeground(Color.WHITE);
         chatButton.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
         chatButton.setFont(new Font("Arial", Font.PLAIN, 30));
 
-        JButton searchButton = new JButton("Pesquisa");
+        JButton searchButton = new JButton("Procurar Arquivo JGS");
         searchButton.setBackground(new Color(0xD19300));
         searchButton.setForeground(Color.WHITE);
         searchButton.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
