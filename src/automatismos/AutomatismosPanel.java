@@ -7,6 +7,8 @@ import java.util.List;
 
 public class AutomatismosPanel extends JPanel {
 
+    private final JPanel painelResposta; // Declaração do painel de resposta fora do método
+
     public AutomatismosPanel() {
         setLayout(new BorderLayout());
 
@@ -23,6 +25,9 @@ public class AutomatismosPanel extends JPanel {
 
         // Adiciona o painel de botões ao topo do JPanel principal
         add(painelBotoes, BorderLayout.NORTH);
+
+        // Cria o JPanel para os botões de resposta
+        painelResposta = new JPanel(new FlowLayout(FlowLayout.CENTER, 10, 10));
     }
 
     // Método para executar o script Python
@@ -30,15 +35,29 @@ public class AutomatismosPanel extends JPanel {
         try {
             List<Dados> resposta = PythonExecutor.executarScript(argumento);
 
-            // Exibe a resposta do script Python
+            // Limpa os botões de resposta anteriores
+            painelResposta.removeAll();
+
+            // Adiciona os novos botões de resposta ao painel
             for (Dados dados : resposta) {
-                System.out.println("Nome: " + dados.getNome());
-                System.out.println("Path: " + dados.getPath());
-                System.out.println("PathProcedure: " + dados.getPathProcedure());
-                System.out.println("LastUpdate: " + dados.getLastUpdate());
-                System.out.println("Status: " + dados.getStatus());
-                System.out.println("-------------------");
+                JButton botaoResposta = createButton(dados.getNome(),
+                        dados.getStatus().equals("Pendente") ? new Color(0xF9EC9B) : new Color(0xBDECB6),  () -> {
+                    // Exemplo: exibir informações do objeto Dados em um diálogo
+                    JOptionPane.showMessageDialog(this, "Nome: " + dados.getNome() + "\n" +
+                            "Path: " + dados.getPath() + "\n" +
+                            "PathProcedure: " + dados.getPathProcedure() + "\n" +
+                            "LastUpdate: " + dados.getLastUpdate() + "\n" +
+                            "Status: " + dados.getStatus());
+                });
+                botaoResposta.setPreferredSize(new Dimension(250, 50));
+                botaoResposta.setForeground(Color.BLACK);
+                painelResposta.add(botaoResposta);
             }
+
+            // Adiciona o painel de resposta ao centro do JPanel principal
+            add(painelResposta, BorderLayout.CENTER);
+            validate(); // Força a atualização do layout
+            repaint(); // Redesenha o painel
 
         } catch (IOException | InterruptedException e) {
             System.err.println("Erro ao executar o script: " + e.getMessage());
@@ -51,8 +70,8 @@ public class AutomatismosPanel extends JPanel {
         button.setBackground(backgroundColor);
         button.setForeground(Color.WHITE);
         button.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
-        button.setFont(new Font("Arial", Font.PLAIN, 30));
-        button.setPreferredSize(new Dimension(400, 50));
+        button.setFont(new Font("Arial", Font.PLAIN, 16)); // Fonte menor para os botões de resposta
+        button.setPreferredSize(new Dimension(400, 75)); // Tamanho menor para os botões de resposta
         button.addActionListener(_ -> action.run());
         return button;
     }
