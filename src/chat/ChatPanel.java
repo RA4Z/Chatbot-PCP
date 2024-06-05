@@ -15,9 +15,15 @@ import java.net.URI;
 import java.net.URL;
 import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
+import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 public class ChatPanel extends JPanel {
+
+    private static final String SERVER_URL = "http://10.1.43.63:5000";
+    private static final Color CHAT_BG_COLOR = new Color(0xE8E7E7);
+    private static final Color SEND_BUTTON_COLOR = new Color(0x0C2D48);
+    private static final Color RESET_BUTTON_COLOR = new Color(0x60100B);
 
     private final JTextPane chatArea;
     private final JTextField messageField;
@@ -27,22 +33,16 @@ public class ChatPanel extends JPanel {
     private final StringBuilder messageHistory = new StringBuilder();
 
     public ChatPanel() {
-        // Referência ao painel anterior
-
         // Configuração do painel
         setLayout(new BorderLayout());
-        setBackground(new Color(0xE8E7E7));
+        setBackground(CHAT_BG_COLOR);
 
         // Criação dos componentes
         chatArea = new JTextPane();
         chatArea.setEditable(false);
-        chatArea.setBackground(new Color(0xE8E7E7));
+        chatArea.setBackground(CHAT_BG_COLOR);
         chatArea.setForeground(Color.WHITE);
-
-        // Cria um padding preto de 10 pixels
-        EmptyBorder paddingBorder = new EmptyBorder(15, 15, 15, 15);
-        LineBorder blackBorder = new LineBorder(new Color(0xe8e7e7));
-        chatArea.setBorder(new CompoundBorder(paddingBorder, blackBorder));
+        chatArea.setBorder(createChatAreaBorder());
 
         messageField = new JTextField();
         messageField.setBackground(Color.WHITE);
@@ -50,13 +50,13 @@ public class ChatPanel extends JPanel {
         messageField.setFont(new Font("Arial", Font.PLAIN, 30));
 
         sendButton = new JButton("Enviar");
-        sendButton.setBackground(new Color(0x0C2D48));
+        sendButton.setBackground(SEND_BUTTON_COLOR);
         sendButton.setForeground(Color.WHITE);
         sendButton.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
         sendButton.setFont(new Font("Arial", Font.PLAIN, 30));
 
         resetButton = new JButton("Resetar");
-        resetButton.setBackground(new Color(0x60100B));
+        resetButton.setBackground(RESET_BUTTON_COLOR);
         resetButton.setForeground(Color.WHITE);
         resetButton.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
         resetButton.setFont(new Font("Arial", Font.PLAIN, 30));
@@ -66,21 +66,16 @@ public class ChatPanel extends JPanel {
         statusLabel.setFont(new Font("Arial", Font.ITALIC, 14));
         statusLabel.setForeground(Color.GRAY);
 
-        JPanel backPanel = new JPanel(new BorderLayout());
-
-        add(backPanel, BorderLayout.NORTH);
-
         // Adiciona componentes ao painel
         add(new JScrollPane(chatArea), BorderLayout.CENTER);
 
         JPanel bottomPanel = new JPanel(new BorderLayout());
-        bottomPanel.setBackground(new Color(0xE8E7E7));
+        bottomPanel.setBackground(CHAT_BG_COLOR);
         bottomPanel.add(statusLabel, BorderLayout.WEST);
         bottomPanel.add(messageField, BorderLayout.CENTER);
 
-        // Cria um painel para o botão "Enviar", "Resetar" e "Voltar"
         JPanel buttonPanel = new JPanel(new FlowLayout(FlowLayout.RIGHT));
-        buttonPanel.setBackground(new Color(0xE8E7E7));
+        buttonPanel.setBackground(CHAT_BG_COLOR);
         buttonPanel.add(resetButton);
         buttonPanel.add(sendButton);
 
@@ -90,8 +85,7 @@ public class ChatPanel extends JPanel {
         // Ações dos botões e campos de texto
         messageField.addKeyListener(new KeyListener() {
             @Override
-            public void keyTyped(KeyEvent e) {
-            }
+            public void keyTyped(KeyEvent e) {}
 
             @Override
             public void keyPressed(KeyEvent e) {
@@ -101,12 +95,17 @@ public class ChatPanel extends JPanel {
             }
 
             @Override
-            public void keyReleased(KeyEvent e) {
-            }
+            public void keyReleased(KeyEvent e) {}
         });
 
         sendButton.addActionListener(_ -> sendMessage());
         resetButton.addActionListener(_ -> resetChat());
+    }
+
+    private CompoundBorder createChatAreaBorder() {
+        EmptyBorder paddingBorder = new EmptyBorder(15, 15, 15, 15);
+        LineBorder blackBorder = new LineBorder(CHAT_BG_COLOR);
+        return new CompoundBorder(paddingBorder, blackBorder);
     }
 
     private void sendMessage() {
@@ -115,14 +114,10 @@ public class ChatPanel extends JPanel {
             // Adiciona texto ao chatArea com estilo HTML
             chatArea.setContentType("text/html");
 
-            Pattern pattern = Pattern.compile("\\*\\*(.*?)\\*\\*");
-            String formattedText = pattern.matcher(message).replaceAll("<strong>$1</strong>");
+            // Formata a mensagem: negrito e links
+            message = formatMessage(message);
 
-            Pattern linkRegex = Pattern.compile("(https?://\\S+)");
-            formattedText = linkRegex.matcher(formattedText)
-                    .replaceAll("<a href=\"$1\" style=\"color:#3B8CED\" target=\"_blank\">$1</a>");
-
-            messageHistory.append("<div style=\"font-size:18px; color:white; padding:5px; border: 1px solid #000; background-color: #053B50; text-align: right;\">").append(formattedText).append("</div> <br>");
+            messageHistory.append("<div style=\"font-size:18px; color:white; padding:5px; border: 1px solid #000; background-color: #053B50; text-align: right;\">").append(message).append("</div> <br>");
 
             try {
                 chatArea.setText(messageHistory.toString());
@@ -138,13 +133,25 @@ public class ChatPanel extends JPanel {
         }
     }
 
+    private String formatMessage(String message) {
+        // Adiciona negrito
+        message = message.replaceAll("\\*\\*(.*?)\\*\\*", "<strong>$1</strong>");
+
+        // Adiciona links
+        Pattern linkRegex = Pattern.compile("(https?://\\S+)");
+        Matcher linkMatcher = linkRegex.matcher(message);
+        message = linkMatcher.replaceAll("<a href=\"$1\" style=\"color:#3B8CED\" target=\"_blank\">$1</a>");
+
+        return message;
+    }
+
     private void resetChat() {
         try {
             messageHistory.setLength(0);
             chatArea.setText("");
             statusLabel.setText("");
             String userName = System.getProperty("user.name");
-            URL url = new URI("http://10.1.43.63:5000/quit").toURL();
+            URL url = new URI(SERVER_URL + "/quit").toURL();
             HttpURLConnection connection = (HttpURLConnection) url.openConnection();
             connection.setRequestMethod("POST");
             connection.setDoOutput(true);
