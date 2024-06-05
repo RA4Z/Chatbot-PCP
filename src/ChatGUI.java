@@ -5,6 +5,12 @@ import javax.imageio.ImageIO;
 import javax.swing.*;
 import java.awt.*;
 import java.io.File;
+import java.awt.Desktop;
+import java.awt.event.MouseAdapter;
+import java.awt.event.MouseEvent;
+import java.io.IOException;
+import java.net.URI;
+import java.net.URISyntaxException;
 
 public class ChatGUI extends JFrame {
 
@@ -31,9 +37,9 @@ public class ChatGUI extends JFrame {
         cardLayout = (CardLayout) homePanel.getLayout();
         homePanel.setBorder(BorderFactory.createEmptyBorder(20, 20, 20, 20));
 
-        createHeader(); // Cria o cabeçalho
+        createHeader();
         createHomePanel();
-        add(homePanel, BorderLayout.CENTER); // Adiciona o homePanel ao centro
+        add(homePanel, BorderLayout.CENTER);
         createFooter();
 
         setVisible(true);
@@ -62,13 +68,9 @@ public class ChatGUI extends JFrame {
         JPanel buttonPanel = new JPanel(new FlowLayout(FlowLayout.CENTER, 10, 10));
         buttonPanel.setBorder(BorderFactory.createEmptyBorder(10, 0, 0, 0));
 
-        JButton chatButton = createButton("Chatbot PCP WEN", new Color(0x365D86), this::showChatPanel);
-        JButton searchButton = createButton("Procurar Arquivo JGS", new Color(0xD19300), this::showSearchPanel);
-        JButton automatismosButton = createButton("Automatismos", new Color(0x00A65A), this::showAutomatismosPanel);
-
-        buttonPanel.add(chatButton);
-        buttonPanel.add(searchButton);
-        buttonPanel.add(automatismosButton);
+        buttonPanel.add(createButton("Chatbot PCP WEN", new Color(0x365D86), this::showChatPanel));
+        buttonPanel.add(createButton("Procurar Arquivo JGS", new Color(0xD19300), this::showSearchPanel));
+        buttonPanel.add(createButton("Automatismos", new Color(0x00A65A), this::showAutomatismosPanel));
 
         JPanel contentPanel = new JPanel(new BorderLayout());
         contentPanel.add(titleLabel, BorderLayout.NORTH);
@@ -88,28 +90,40 @@ public class ChatGUI extends JFrame {
         return button;
     }
 
-    private void showChatPanel() {
-        if (chatPanel == null) {
-            chatPanel = new ChatPanel();
+    private void showPanel(String panelName) {
+        switch (panelName) {
+            case "chat":
+                if (chatPanel == null) {
+                    chatPanel = new ChatPanel();
+                }
+                homePanel.add(chatPanel, "chat");
+                break;
+            case "search":
+                if (searchPanel == null) {
+                    searchPanel = new SearchPanel();
+                }
+                homePanel.add(searchPanel, "search");
+                break;
+            case "automatismos":
+                if (automatismosPanel == null) {
+                    automatismosPanel = new AutomatismosPanel();
+                }
+                homePanel.add(automatismosPanel, "automatismos");
+                break;
         }
-        homePanel.add(chatPanel, "chat");
-        cardLayout.show(homePanel, "chat");
+        cardLayout.show(homePanel, panelName);
+    }
+
+    private void showChatPanel() {
+        showPanel("chat");
     }
 
     private void showSearchPanel() {
-        if (searchPanel == null) {
-            searchPanel = new SearchPanel();
-        }
-        homePanel.add(searchPanel, "search");
-        cardLayout.show(homePanel, "search");
+        showPanel("search");
     }
 
     private void showAutomatismosPanel() {
-        if (automatismosPanel == null) {
-            automatismosPanel = new AutomatismosPanel();
-        }
-        homePanel.add(automatismosPanel, "automatismos");
-        cardLayout.show(homePanel, "automatismos");
+        showPanel("automatismos");
     }
 
     private void showHomePanel() {
@@ -128,8 +142,7 @@ public class ChatGUI extends JFrame {
 
         try {
             Image footerImage = ImageIO.read(new File("./images/logo.png"));
-            JLabel imageLabel = new JLabel(new ImageIcon(footerImage));
-            imageLabel.setHorizontalAlignment(SwingConstants.LEFT);
+            JLabel imageLabel = getjLabel(footerImage);
 
             footerPanel.add(imageLabel, BorderLayout.WEST);
             footerPanel.add(footerText, BorderLayout.CENTER);
@@ -137,6 +150,37 @@ public class ChatGUI extends JFrame {
         } catch (Exception e) {
             System.out.println("Erro ao carregar imagem do rodapé: " + e.getMessage());
         }
+    }
+
+    private static JLabel getjLabel(Image footerImage) {
+        JLabel imageLabel = new JLabel(new ImageIcon(footerImage));
+        imageLabel.setHorizontalAlignment(SwingConstants.LEFT);
+
+        // Adiciona um MouseListener para o JLabel da imagem
+        imageLabel.addMouseListener(new MouseAdapter() {
+            @Override
+            public void mouseClicked(MouseEvent e) {
+                // Abre o link no navegador
+                try {
+                    Desktop.getDesktop().browse(new URI("https://automations-database.vercel.app/"));
+                } catch (URISyntaxException | IOException ex) {
+                    System.err.println("Erro ao abrir o link: " + ex.getMessage());
+                }
+            }
+
+            @Override
+            public void mouseEntered(MouseEvent e) {
+                imageLabel.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
+                imageLabel.setToolTipText("Navegar para Automation's Database");
+            }
+
+            @Override
+            public void mouseExited(MouseEvent e) {
+                imageLabel.setCursor(Cursor.getDefaultCursor());
+                imageLabel.setToolTipText(null);
+            }
+        });
+        return imageLabel;
     }
 
     public static void main(String[] args) {
