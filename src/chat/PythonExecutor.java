@@ -11,6 +11,8 @@ import java.net.URL;
 import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
 import java.util.regex.Pattern;
+import java.awt.Desktop;
+import javax.swing.event.HyperlinkEvent;
 
 public class PythonExecutor extends SwingWorker<Void, String> {
 
@@ -44,7 +46,6 @@ public class PythonExecutor extends SwingWorker<Void, String> {
             publish("Escrevendo...");
 
             // URL do servidor Flask
-            //URL url = new URI("http://10.1.43.24:5000/gemini").toURL();
             URL url = new URI("http://10.1.43.63:5000/gemini").toURL();
             HttpURLConnection connection = (HttpURLConnection) url.openConnection();
             connection.setRequestMethod("POST");
@@ -84,20 +85,33 @@ public class PythonExecutor extends SwingWorker<Void, String> {
             if (chunk.equals("Escrevendo...")) {
                 statusLabel.setText(chunk);
             } else {
-                // Adiciona texto ao JTextPane com estilo HTML
-                chatArea.setContentType("text/html");
-
+                // Adiciona texto ao JEditorPane com estilo HTML
                 Pattern pattern = Pattern.compile("\\*\\*(.*?)\\*\\*");
                 String formattedText = pattern.matcher(chunk).replaceAll("<strong>$1</strong>");
 
                 Pattern linkRegex = Pattern.compile("(https?://\\S+)");
                 formattedText = linkRegex.matcher(formattedText)
-                        .replaceAll("<a href=\"$1\" style=\"color:#3B8CED;\" target=\"_blank\">$1</a>");
+                        .replaceAll("<a href=\"$1\" style=\"color:#3B8CED;cursor:pointer\" target=\"_blank\">$1</a>");
 
                 messageHistory.append("<div style=\"font-size:18px; color:white; padding:5px; background-color: #176B87; border: 1px solid #000;\">" + "🤖<br>").append(formattedText).append("</div> <br>");
 
                 try {
+                    // Define o tipo de conteúdo como HTML
+                    chatArea.setContentType("text/html");
+                    // Define o texto do JEditorPane
                     chatArea.setText(messageHistory.toString());
+
+                    // Adiciona um HyperlinkListener para abrir links
+                    chatArea.addHyperlinkListener(e -> {
+                        if (e.getEventType() == HyperlinkEvent.EventType.ACTIVATED) {
+                            try {
+                                String link = e.getURL().toString().substring(0,e.getURL().toString().indexOf("<br>"));
+                                Desktop.getDesktop().browse(new URI(link));
+                            } catch (Exception ex) {
+                                System.err.println("Erro ao abrir o link: " + ex.getMessage());
+                            }
+                        }
+                    });
 
                 } catch (Exception e) {
                     System.out.println(e.getMessage());
