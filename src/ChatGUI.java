@@ -1,6 +1,6 @@
 import chat.ChatPanel;
 import file_search.SearchPanel;
-import automatismos.AutomatismosPanel;
+import secretaria.SecretariaPanel;
 import javax.imageio.ImageIO;
 import javax.swing.*;
 import java.awt.*;
@@ -17,7 +17,7 @@ public class ChatGUI extends JFrame {
     private final JPanel homePanel;
     private final CardLayout cardLayout;
 
-    private AutomatismosPanel automatismosPanel;
+    private SecretariaPanel secretariaPanel;
     private ChatPanel chatPanel;
     private SearchPanel searchPanel;
 
@@ -70,7 +70,7 @@ public class ChatGUI extends JFrame {
 
         buttonPanel.add(createButton("Chatbot PCP WEN", new Color(0x365D86), this::showChatPanel));
         buttonPanel.add(createButton("Procurar Arquivo JGS", new Color(0xD19300), this::showSearchPanel));
-        buttonPanel.add(createButton("Automatismos", new Color(0x00A65A), this::showAutomatismosPanel));
+        buttonPanel.add(createButton("Assistente de Secretária", new Color(0x00A65A), this::showAutomatismosPanel));
 
         JPanel contentPanel = new JPanel(new BorderLayout());
         contentPanel.add(titleLabel, BorderLayout.NORTH);
@@ -104,11 +104,11 @@ public class ChatGUI extends JFrame {
                 }
                 homePanel.add(searchPanel, "search");
                 break;
-            case "automatismos":
-                if (automatismosPanel == null) {
-                    automatismosPanel = new AutomatismosPanel();
+            case "secretaria":
+                if (secretariaPanel == null) {
+                    secretariaPanel = new SecretariaPanel();
                 }
-                homePanel.add(automatismosPanel, "automatismos");
+                homePanel.add(secretariaPanel, "secretaria");
                 break;
         }
         cardLayout.show(homePanel, panelName);
@@ -123,7 +123,7 @@ public class ChatGUI extends JFrame {
     }
 
     private void showAutomatismosPanel() {
-        showPanel("automatismos");
+        showPanel("secretaria");
     }
 
     private void showHomePanel() {
