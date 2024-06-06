@@ -156,6 +156,11 @@ public class SecretariaPanel extends JPanel {
             repaint();
 
         } catch (IOException | URISyntaxException e) {
+            loadingBar.setVisible(false);
+            JOptionPane.showMessageDialog(null,
+                    "Ocorreu o erro: " + e.getMessage(),
+                    "Erro",
+                    JOptionPane.ERROR_MESSAGE);
             throw new RuntimeException(e);
         }
     }
