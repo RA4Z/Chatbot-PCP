@@ -27,8 +27,7 @@ public class SecretariaPanel extends JPanel {
     private final JPanel painelResposta;
     private List<String> topics = new ArrayList<>();
     private JPanel painelTopicos; // Painel para os checkboxes dos tópicos
-    private JPanel verticalBody = new JPanel(new BorderLayout());
-    private JScrollPane scrollPane;
+    private JProgressBar loadingBar;
 
     public SecretariaPanel() {
         setLayout(new BorderLayout());
@@ -46,9 +45,11 @@ public class SecretariaPanel extends JPanel {
         painelBotoes.add(botaoSemanais);
         painelBotoes.add(botaoMensais);
 
-        add(painelBotoes,BorderLayout.NORTH);
-        add(verticalBody);
-        verticalBody.add(painelResposta);
+        add(painelBotoes, BorderLayout.NORTH);
+
+        // Cria um JPanel vertical para os botões e a resposta
+        JPanel painelVertical = new JPanel(new BorderLayout());
+        painelVertical.add(painelResposta);
 
         // Cria o painel de chat com JScrollPane para scroll
         chatArea = new JTextPane();
@@ -57,9 +58,28 @@ public class SecretariaPanel extends JPanel {
         chatArea.setForeground(Color.WHITE);
         chatArea.setBorder(createChatAreaBorder());
 
-        scrollPane = new JScrollPane(chatArea);
+        // Cria o JScrollPane e adiciona o chatArea
+        JScrollPane scrollPane = new JScrollPane(chatArea);
         scrollPane.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED);
-        verticalBody.add(scrollPane,BorderLayout.SOUTH);
+        scrollPane.setHorizontalScrollBarPolicy(JScrollPane.HORIZONTAL_SCROLLBAR_AS_NEEDED);
+
+        // Define a largura mínima e máxima do JScrollPane
+        scrollPane.setMinimumSize(new Dimension(300, scrollPane.getPreferredSize().height));
+        scrollPane.setMaximumSize(new Dimension(500, Integer.MAX_VALUE));
+
+        // Permite o redimensionamento horizontal do JScrollPane
+        scrollPane.setPreferredSize(new Dimension(500, 200));
+        scrollPane.setHorizontalScrollBarPolicy(ScrollPaneConstants.HORIZONTAL_SCROLLBAR_ALWAYS);
+
+        // Adiciona o JScrollPane ao painel principal
+        painelVertical.add(scrollPane, BorderLayout.AFTER_LINE_ENDS);
+        add(painelVertical);
+
+        // Cria a barra de progresso (loading bar)
+        loadingBar = new JProgressBar();
+        loadingBar.setIndeterminate(true);
+        loadingBar.setVisible(false);
+        painelVertical.add(loadingBar, BorderLayout.NORTH);
     }
 
     private CompoundBorder createChatAreaBorder() {
@@ -70,8 +90,6 @@ public class SecretariaPanel extends JPanel {
 
     // Método para executar o script Python
     private void executarScript(String argumento) {
-        verticalBody.remove(scrollPane);
-        verticalBody.add(scrollPane,BorderLayout.SOUTH);
         try {
             List<Dados> resposta = PythonExecutor.executarScript(argumento); // Assuma que PythonExecutor está definido
             atualizarPainelResposta(resposta);
@@ -99,8 +117,13 @@ public class SecretariaPanel extends JPanel {
 
     // Método para exibir as informações do objeto Dados em um diálogo
     private void exibirInformacoes(Dados dados) {
-        // Cria uma nova thread para executar get_procedure
-        new Thread(() -> get_procedure(dados.getPathProcedure(), dados.getNome())).start();
+        // Mostra a barra de progresso
+        loadingBar.setVisible(true);
+        new Thread(() -> {
+            get_procedure(dados.getPathProcedure(), dados.getNome());
+            // Esconde a barra de progresso após o término
+            SwingUtilities.invokeLater(() -> loadingBar.setVisible(false));
+        }).start();
     }
 
     // Método para obter a lista de tópicos
@@ -127,18 +150,10 @@ public class SecretariaPanel extends JPanel {
                 response.append(line.replace("<topico>", "")).append(" <br>");
             }
             reader.close();
+            this.updateChatArea(response.toString());
 
-            // Atualiza a área de chat na thread de execução (Swing não é thread-safe)
-            SwingUtilities.invokeLater(() -> updateChatArea(response.toString()));
-
-            // Limpa o painel de resposta
-            SwingUtilities.invokeLater(() -> {
-                painelResposta.removeAll();
-                verticalBody.remove(scrollPane);
-                verticalBody.add(scrollPane);
-                validate();
-                repaint();
-            });
+            validate();
+            repaint();
 
         } catch (IOException | URISyntaxException e) {
             throw new RuntimeException(e);
