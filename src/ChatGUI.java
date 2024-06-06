@@ -68,9 +68,9 @@ public class ChatGUI extends JFrame {
         JPanel buttonPanel = new JPanel(new FlowLayout(FlowLayout.CENTER, 10, 10));
         buttonPanel.setBorder(BorderFactory.createEmptyBorder(10, 0, 0, 0));
 
-        buttonPanel.add(createButton("Chatbot PCP WEN", new Color(0x365D86), this::showChatPanel));
-        buttonPanel.add(createButton("Procurar Arquivo JGS", new Color(0xD19300), this::showSearchPanel));
-        buttonPanel.add(createButton("Indicadores da Secretária", new Color(0x00A65A), this::showAutomatismosPanel));
+        buttonPanel.add(createButton("Chatbot PCP WEN", new Color(0, 102, 153), this::showChatPanel));
+        buttonPanel.add(createButton("Procurar Arquivo JGS", new Color(0, 102, 153), this::showSearchPanel));
+        buttonPanel.add(createButton("Indicadores da Secretária", new Color(0, 102, 153), this::showAutomatismosPanel));
 
         JPanel contentPanel = new JPanel(new BorderLayout());
         contentPanel.add(titleLabel, BorderLayout.NORTH);
