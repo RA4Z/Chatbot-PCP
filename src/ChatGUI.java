@@ -70,7 +70,7 @@ public class ChatGUI extends JFrame {
 
         buttonPanel.add(createButton("Chatbot PCP WEN", new Color(0x365D86), this::showChatPanel));
         buttonPanel.add(createButton("Procurar Arquivo JGS", new Color(0xD19300), this::showSearchPanel));
-        buttonPanel.add(createButton("Assistente de Secretária", new Color(0x00A65A), this::showAutomatismosPanel));
+        buttonPanel.add(createButton("Indicadores da Secretária", new Color(0x00A65A), this::showAutomatismosPanel));
 
         JPanel contentPanel = new JPanel(new BorderLayout());
         contentPanel.add(titleLabel, BorderLayout.NORTH);
