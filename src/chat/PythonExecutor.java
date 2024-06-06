@@ -17,9 +17,10 @@ public class PythonExecutor extends SwingWorker<Void, String> {
     private final JButton sendButton;
     private final JButton resetButton;
     private final StringBuilder messageHistory;
+    private final JProgressBar loadingBar;
 
     public PythonExecutor(String message, JTextPane chatArea, JLabel statusLabel, JTextField messageField,
-                          JButton sendButton, StringBuilder messageHistory, JButton resetButton) {
+                          JButton sendButton, StringBuilder messageHistory, JButton resetButton, JProgressBar loadingBar) {
         this.message = message;
         this.chatArea = chatArea;
         this.statusLabel = statusLabel;
@@ -27,6 +28,7 @@ public class PythonExecutor extends SwingWorker<Void, String> {
         this.sendButton = sendButton;
         this.messageHistory = messageHistory;
         this.resetButton = resetButton;
+        this.loadingBar = loadingBar;
     }
 
     @Override
@@ -60,6 +62,7 @@ public class PythonExecutor extends SwingWorker<Void, String> {
 
     @Override
     protected void process(java.util.List<String> chunks) {
+        loadingBar.setVisible(true);
         for (String chunk : chunks) {
             if (chunk.equals("Escrevendo...")) {
                 statusLabel.setText(chunk);
@@ -67,6 +70,7 @@ public class PythonExecutor extends SwingWorker<Void, String> {
                 String formattedText = formatText(chunk);
                 messageHistory.append("<div style=\"font-size:18px; color:white; padding:5px; background-color: #176B87; border: 1px solid #000;\">" + "🤖<br>").append(formattedText).append("</div> <br>");
                 updateChatArea();
+                loadingBar.setVisible(false);
             }
         }
     }
@@ -98,6 +102,7 @@ public class PythonExecutor extends SwingWorker<Void, String> {
             });
         } catch (Exception e) {
             System.err.println("Erro ao atualizar chat: " + e.getMessage());
+            loadingBar.setVisible(false);
         }
     }
 

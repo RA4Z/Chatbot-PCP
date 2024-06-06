@@ -31,6 +31,7 @@ public class ChatPanel extends JPanel {
     private final JButton resetButton;
     private final JLabel statusLabel;
     private final StringBuilder messageHistory = new StringBuilder();
+    private final JProgressBar loadingBar;
 
     public ChatPanel() {
         // Configuração do painel
@@ -65,6 +66,12 @@ public class ChatPanel extends JPanel {
         statusLabel.setHorizontalAlignment(SwingConstants.LEFT);
         statusLabel.setFont(new Font("Arial", Font.ITALIC, 14));
         statusLabel.setForeground(Color.GRAY);
+
+        // Cria a barra de progresso (loading bar)
+        loadingBar = new JProgressBar();
+        loadingBar.setIndeterminate(true);
+        loadingBar.setVisible(false);
+        add(loadingBar, BorderLayout.NORTH);
 
         // Adiciona componentes ao painel
         add(new JScrollPane(chatArea), BorderLayout.CENTER);
@@ -129,7 +136,7 @@ public class ChatPanel extends JPanel {
             messageField.setText("");
 
             // Executa o script Python em uma thread separada
-            new PythonExecutor(message, chatArea, statusLabel, messageField, sendButton, messageHistory, resetButton).execute();
+            new PythonExecutor(message, chatArea, statusLabel, messageField, sendButton, messageHistory, resetButton, loadingBar).execute();
         }
     }
 
