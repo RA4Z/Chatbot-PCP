@@ -70,7 +70,6 @@ public class PythonExecutor extends SwingWorker<Void, String> {
                 String formattedText = formatText(chunk);
                 messageHistory.append("<div style=\"font-size:18px; color:white; padding:5px; background-color: #176B87; border: 1px solid #000;\">" + "🤖<br>").append(formattedText).append("</div> <br>");
                 updateChatArea();
-                loadingBar.setVisible(false);
             }
         }
     }
@@ -101,8 +100,11 @@ public class PythonExecutor extends SwingWorker<Void, String> {
                 }
             });
         } catch (Exception e) {
-            System.err.println("Erro ao atualizar chat: " + e.getMessage());
-            loadingBar.setVisible(false);
+            JOptionPane.showMessageDialog(null,
+                    "Ocorreu o erro: " + e.getMessage(),
+                    "Erro",
+                    JOptionPane.ERROR_MESSAGE);
+            throw new RuntimeException(e);
         }
     }
 
@@ -110,6 +112,7 @@ public class PythonExecutor extends SwingWorker<Void, String> {
     protected void done() {
         enableInput();
         statusLabel.setText("");
+        loadingBar.setVisible(false);
     }
 
     private void disableInput() {
