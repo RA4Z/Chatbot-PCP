@@ -23,6 +23,11 @@ public class PetApp {
         frame.setBackground(new Color(0, 0, 0, 0)); // Transparência total (0 = totalmente transparente)
         frame.setLocationRelativeTo(null); // Centraliza a janela
 
+        try {
+            frame.setIconImage(ImageIO.read(new File("./images/chatbot_normal.png")));
+        } catch (Exception e) {
+            System.out.println("Erro ao carregar ícone: " + e.getMessage());
+        }
         // Carrega a imagem
         try {
             BufferedImage image = ImageIO.read(new File("images/chat.png")); // Substitua "pet.png" pelo nome da sua imagem
