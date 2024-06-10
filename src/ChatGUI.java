@@ -24,7 +24,7 @@ public class ChatGUI extends JFrame {
     public ChatGUI() {
         setTitle("ChatBot PCP - BETA");
         setSize(1200, 750);
-        setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+        setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE); // Fecha somente a janela do ChatGUI
         setLocationRelativeTo(null);
 
         try {
@@ -181,9 +181,5 @@ public class ChatGUI extends JFrame {
             }
         });
         return imageLabel;
-    }
-
-    public static void main(String[] args) {
-        SwingUtilities.invokeLater(ChatGUI::new);
     }
 }
