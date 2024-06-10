@@ -1,0 +1,2 @@
+Google AI Studio;https://aistudio.google.com/app/prompts/new_chat
+Power BI Publicados;https://app.powerbi.com/groups/18059ab8-eb11-40bf-8d8b-e2653ff6545b/list?experience=power-bi
