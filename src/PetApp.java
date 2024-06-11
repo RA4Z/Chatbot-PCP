@@ -69,7 +69,9 @@ public class PetApp {
                 } else if (e.getButton() == MouseEvent.BUTTON2) {
                     showDeleteMenu(e);
                 } else if (e.getButton() == MouseEvent.BUTTON1) {
+                    if (e.getClickCount() == 2) {
                     adicionarOuEditarFavorito();
+                    }
                 }
             }
         });
@@ -224,7 +226,7 @@ public class PetApp {
         JPopupMenu menu = new JPopupMenu();
 
         if (!linksFavoritos.isEmpty()) {
-            JMenu favoritosMenu = new JMenu("Favoritos");
+            JMenu favoritosMenu = new JMenu("Deletar Favoritos");
             for (Map.Entry<String, String> entry : linksFavoritos.entrySet()) {
                 JMenuItem subItem = getjMenuItem(entry);
                 favoritosMenu.add(subItem);
