@@ -50,6 +50,28 @@ public class PetApp {
             public void mousePressed(MouseEvent e) {
                 startDragPoint = e.getPoint();
             }
+            @Override
+            public void mouseEntered(MouseEvent e) {
+                // Carrega a imagem de hover (chatbot_normal.png)
+                try {
+                    BufferedImage hoverImage = ImageIO.read(new File("images/chatbot_normal.png"));
+                    hoverImage = resizeImage(hoverImage);
+                    imageLabel.setIcon(new ImageIcon(hoverImage));
+                } catch (IOException ex) {
+                    System.err.println("Erro ao carregar a imagem de hover: " + ex);
+                }
+            }
+            @Override
+            public void mouseExited(MouseEvent e) {
+                // Volta para a imagem inicial (chat.png)
+                try {
+                    BufferedImage initialImage = ImageIO.read(new File("images/chat.png"));
+                    initialImage = resizeImage(initialImage);
+                    imageLabel.setIcon(new ImageIcon(initialImage));
+                } catch (IOException ex) {
+                    System.err.println("Erro ao carregar a imagem inicial: " + ex);
+                }
+            }
         });
         imageLabel.addMouseMotionListener(new MouseAdapter() {
             @Override
