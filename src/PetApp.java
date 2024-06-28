@@ -20,7 +20,7 @@ public class PetApp {
     public PetApp() {
         frame = new JFrame("Pet App");
         frame.setUndecorated(true);
-        frame.setSize(200, 250);
+        frame.setSize(200,250);
         frame.setAlwaysOnTop(true);
         frame.setBackground(new Color(0, 0, 0, 0));
         frame.setLocationRelativeTo(null);
@@ -274,6 +274,15 @@ public class PetApp {
     private BufferedImage resizeImage(BufferedImage originalImage) {
         Image resultingImage = originalImage.getScaledInstance(150, 150, Image.SCALE_SMOOTH);
         BufferedImage outputImage = new BufferedImage(150, 150, BufferedImage.TYPE_INT_ARGB);
+
+        try (BufferedReader leitor = new BufferedReader(new FileReader("scripts/tamanho.txt"))) {
+            String linha = leitor.readLine();
+            String[] partes = linha.split(";");
+            resultingImage = originalImage.getScaledInstance(Integer.parseInt(partes[0].trim()), Integer.parseInt(partes[1].trim()), Image.SCALE_SMOOTH);
+            outputImage = new BufferedImage(Integer.parseInt(partes[0].trim()), Integer.parseInt(partes[1].trim()), BufferedImage.TYPE_INT_ARGB);
+        } catch(IOException e) {
+            System.out.println("Ocorreu o erro: " + e);
+        }
         outputImage.getGraphics().drawImage(resultingImage, 0, 0, null);
         return outputImage;
     }
